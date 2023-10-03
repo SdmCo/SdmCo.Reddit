@@ -66,15 +66,19 @@ public class SubredditMonitor
             _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", RedditUserAgent);
 
             var response =
-                await _httpClient.GetAsync($"https://www.reddit.com/r/{_subreddit}/new.json", cancellationToken);
+                await _httpClient.GetAsync($"https://oauth.reddit.com/r/{_subreddit}/new.json", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             if (response.Headers.Contains("X-RateLimit-Remaining") && response.Headers.Contains("X-RateLimit-Reset"))
             {
-                var remaining = int.Parse(response.Headers.GetValues("X-RateLimit-Remaining").First());
-                var resetInSeconds = int.Parse(response.Headers.GetValues("X-RateLimit-Reset").First());
+                var rateLimitRemaining = response.Headers.GetValues("X-RateLimit-Remaining").First();
+                var resetInSeconds = response.Headers.GetValues("X-RateLimit-Reset").First();
 
-                _rateLimitService.SetRateLimitInfo(remaining, resetInSeconds);
+                // Round rate limit remainign down to the nearest integer.
+                var remaining = (int)Math.Floor(decimal.Parse(rateLimitRemaining));
+                var reset = int.Parse(resetInSeconds);
+
+                _rateLimitService.SetRateLimitInfo(remaining, reset);
             }
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
