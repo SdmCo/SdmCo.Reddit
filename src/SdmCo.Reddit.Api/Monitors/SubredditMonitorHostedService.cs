@@ -5,18 +5,19 @@ namespace SdmCo.Reddit.Api.Monitors;
 
 public class SubredditMonitorHostedService : IHostedService
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly List<Task> _monitoringTasks;
-    private readonly SubredditSettings _subredditSettings;
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly ILogger<SubredditMonitorHostedService> _logger;
+    private readonly IServiceProvider _serviceProvider;
 
-    public SubredditMonitorHostedService(IServiceProvider serviceProvider, IOptions<SubredditSettings> subredditSettings, ILogger<SubredditMonitorHostedService> logger)
+    private readonly SubredditSettings _subredditSettings;
+
+    public SubredditMonitorHostedService(IServiceProvider serviceProvider,
+        IOptions<SubredditSettings> subredditSettings, ILogger<SubredditMonitorHostedService> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
         _subredditSettings = subredditSettings.Value;
-        _monitoringTasks = new List<Task>();
+
         _cancellationTokenSource = new CancellationTokenSource();
     }
 
@@ -26,7 +27,8 @@ public class SubredditMonitorHostedService : IHostedService
 
         var subreddits = _subredditSettings.Subreddits;
 
-        _logger.LogInformation("Creating monitors for the following subreddits: {SubredditNames}", string.Join(',', subreddits));
+        _logger.LogInformation("Creating monitors for the following subreddits: {SubredditNames}",
+            string.Join(',', subreddits));
 
         foreach (var subreddit in subreddits)
         {
@@ -39,13 +41,9 @@ public class SubredditMonitorHostedService : IHostedService
                 subredditMonitor.ConfigureSubreddit(subreddit);
                 await subredditMonitor.MonitorAsync(_cancellationTokenSource.Token);
             }, cancellationToken);
-
-            // Keep track of our monitoring tasks
-            _monitoringTasks.Add(task);
         }
 
-        // Wait for them all to complete
-        return Task.WhenAll(_monitoringTasks);
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

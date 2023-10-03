@@ -1,6 +1,7 @@
 using SdmCo.Reddit.Api.Extensions;
 using SdmCo.Reddit.Api.Monitors;
 using SdmCo.Reddit.Api.Persistence;
+using SdmCo.Reddit.Api.Policies;
 using SdmCo.Reddit.Api.Services;
 using SdmCo.Reddit.Api.Settings;
 using Serilog;
@@ -29,7 +30,13 @@ var redisConnectionString = builder.Configuration.GetValue<string>("Redis:Connec
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
 
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<IRedditAuthenticationService, RedditAuthenticationService>()
+    .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
+    .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy());
+
+builder.Services.AddHttpClient<SubredditMonitor>()
+    .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
+    .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy());
 
 builder.Services.AddScoped<IRedditRepository, RedisRepository>();
 

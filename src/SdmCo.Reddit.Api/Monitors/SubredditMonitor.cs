@@ -1,7 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
-using Polly;
-using Polly.Retry;
 using SdmCo.Reddit.Api.Entities.Dtos;
 using SdmCo.Reddit.Api.Persistence;
 using SdmCo.Reddit.Api.Services;
@@ -13,36 +11,26 @@ public class SubredditMonitor
     private const string RedditUserAgent = "Windows:SdmCoStats:v1.0.0 (by /u/Calamity_Rainbow)";
 
     private readonly IRedditAuthenticationService _authService;
-    private readonly IRedditRepository _repository;
     private readonly HttpClient _httpClient;
-    private readonly IRateLimitService _rateLimitService;
-    private string _subreddit = string.Empty;
-    private string _lastPostId = string.Empty;
-    private readonly AsyncRetryPolicy<bool> _backoffPolicy;
     private readonly ILogger<SubredditMonitor> _logger;
+    private readonly int _maxRetryCount = 5;
+    private readonly IRateLimitService _rateLimitService;
+    private readonly IRedditRepository _repository;
 
-    private HashSet<string> _seenPostIds = new HashSet<string>();
+    private readonly HashSet<string> _seenPostIds = new();
 
-    public SubredditMonitor(IRedditAuthenticationService authService, IRateLimitService rateLimitService, 
-        IHttpClientFactory httpClientFactory, IRedditRepository repository, ILogger<SubredditMonitor> logger)
+    private int _retryCount;
+    private string _subreddit = string.Empty;
+
+    public SubredditMonitor(IRedditAuthenticationService authService, IRateLimitService rateLimitService,
+        HttpClient httpClient, IRedditRepository repository, ILogger<SubredditMonitor> logger)
     {
         _authService = authService;
         _repository = repository;
         _logger = logger;
         _rateLimitService = rateLimitService;
 
-        _httpClient = httpClientFactory.CreateClient(nameof(SubredditMonitor));
-
-        _backoffPolicy = Policy
-            .HandleResult<bool>(r => r == false)
-            .WaitAndRetryAsync(new[]
-            {
-                TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(2),
-                TimeSpan.FromSeconds(4),
-                TimeSpan.FromSeconds(8),
-                TimeSpan.FromSeconds(16),
-            });
+        _httpClient = httpClient;
     }
 
     public void ConfigureSubreddit(string subreddit) => _subreddit = subreddit;
@@ -88,36 +76,45 @@ public class SubredditMonitor
                 PropertyNameCaseInsensitive = true
             };
 
+            _logger.LogInformation("Checking for new posts in {SubredditName}", _subreddit);
+
             var newPostsResponse = JsonSerializer.Deserialize<NewPostsResponse>(content, jsonOptions);
 
-            if (newPostsResponse is null) 
+            if (newPostsResponse is null)
                 continue;
 
             var hasNewPost = HasNewPosts(newPostsResponse);
             if (hasNewPost)
             {
-                _logger.LogInformation("New posts found for subreddit {SubredditName}", _subreddit);
+                _logger.LogInformation("New posts found in {SubredditName}", _subreddit);
                 await _repository.AddPostsAsync(_subreddit, newPostsResponse.Data.Children);
+
+                _retryCount = 0;
             }
+            else
+            {
+                if (_retryCount < _maxRetryCount)
+                    _retryCount++;
 
-            await _backoffPolicy.ExecuteAsync(() => Task.FromResult(hasNewPost));
-
-            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+                var delay = TimeSpan.FromSeconds(Math.Pow(2, _retryCount));
+                _logger.LogInformation(
+                    "No new posts found in {SubredditName}.  Waiting {Delay} seconds until trying again.", _subreddit,
+                    delay);
+                await Task.Delay(delay, cancellationToken);
+            }
         }
     }
 
     private bool HasNewPosts(NewPostsResponse response)
     {
-        bool hasNewPosts = false;
+        var hasNewPosts = false;
 
         foreach (var post in response.Data.Children)
-        {
             if (!_seenPostIds.Contains(post.Data.Id))
             {
                 _seenPostIds.Add(post.Data.Id);
                 hasNewPosts = true;
             }
-        }
 
         return hasNewPosts;
     }

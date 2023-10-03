@@ -19,10 +19,10 @@ public class RedditAuthenticationService : IRedditAuthenticationService
 
     private RedditAuthToken? _currentToken;
 
-    public RedditAuthenticationService(IOptions<RedditAuthSettings> authSettings, IHttpClientFactory httpClientFactory, ILogger<RedditAuthenticationService> logger)
+    public RedditAuthenticationService(IOptions<RedditAuthSettings> authSettings, HttpClient httpClient, ILogger<RedditAuthenticationService> logger)
     {
         _authSettings = authSettings.Value;
-        _httpClient = httpClientFactory.CreateClient(nameof(RedditAuthenticationService));
+        _httpClient = httpClient;
         _logger = logger;
     }
 
