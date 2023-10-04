@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using SdmCo.Reddit.Api.Entities.Dtos;
-using SdmCo.Reddit.Api.Persistence;
+using SdmCo.Reddit.Common.Persistence;
 
 namespace SdmCo.Reddit.Api.Controllers;
 

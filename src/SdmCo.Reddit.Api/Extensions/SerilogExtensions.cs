@@ -1,4 +1,4 @@
-﻿using SdmCo.Reddit.Api.Settings;
+﻿using SdmCo.Reddit.Common.Settings;
 using Serilog;
 using Serilog.Exceptions;
 

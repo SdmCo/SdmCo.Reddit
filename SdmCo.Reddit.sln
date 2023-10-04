@@ -5,7 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FE754737-CF36-480F-BC2F-78829EA7119B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdmCo.Reddit.Api", "src\SdmCo.Reddit.Api\SdmCo.Reddit.Api.csproj", "{C18AC896-0B16-42DA-8C71-2B3EB5DBF936}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SdmCo.Reddit.Api", "src\SdmCo.Reddit.Api\SdmCo.Reddit.Api.csproj", "{C18AC896-0B16-42DA-8C71-2B3EB5DBF936}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdmCo.Reddit.Common", "src\SdmCo.Reddit.Common\SdmCo.Reddit.Common.csproj", "{11065083-DE29-42C2-A160-FD0836882030}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdmCo.Reddit.Monitor", "src\SdmCo.Reddit.Monitor\SdmCo.Reddit.Monitor.csproj", "{42C162A4-A74F-43E4-BD25-A9554621EF5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,12 +21,22 @@ Global
 		{C18AC896-0B16-42DA-8C71-2B3EB5DBF936}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C18AC896-0B16-42DA-8C71-2B3EB5DBF936}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C18AC896-0B16-42DA-8C71-2B3EB5DBF936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11065083-DE29-42C2-A160-FD0836882030}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11065083-DE29-42C2-A160-FD0836882030}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11065083-DE29-42C2-A160-FD0836882030}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11065083-DE29-42C2-A160-FD0836882030}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42C162A4-A74F-43E4-BD25-A9554621EF5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42C162A4-A74F-43E4-BD25-A9554621EF5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42C162A4-A74F-43E4-BD25-A9554621EF5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42C162A4-A74F-43E4-BD25-A9554621EF5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C18AC896-0B16-42DA-8C71-2B3EB5DBF936} = {FE754737-CF36-480F-BC2F-78829EA7119B}
+		{11065083-DE29-42C2-A160-FD0836882030} = {FE754737-CF36-480F-BC2F-78829EA7119B}
+		{42C162A4-A74F-43E4-BD25-A9554621EF5D} = {FE754737-CF36-480F-BC2F-78829EA7119B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {71484006-1764-4932-89C9-833B0E6A771C}
