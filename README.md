@@ -15,7 +15,20 @@ This application will monitor a provided list of subreddits for new posts and pr
 
 ## Setup
 
-1. Set Environment Variables (You may use the provided setup_env scripts if desired)
+1. Set Environment Variables
+
+You may use the provided setup_env scripts if desired, or you can make use of .NET user secrets as well in the SdmCo.Reddit.Monitor project if running in Development:
+
+```json
+{
+  "RedditAuth": {
+    "ClientId": "YOUR_CLIENT_ID",
+    "ClientSecret": "YOUR_CLIENT_SECRET",
+    "Username": "YOUR_USERNAME",
+    "Password": "YOUR_PASSWORD"
+  }
+}
+```
 
 - **Windows**:
 
