@@ -1,5 +1,4 @@
 using SdmCo.Reddit.Common.Persistence;
-using SdmCo.Reddit.Monitor;
 using SdmCo.Reddit.Monitor.Extensions;
 using SdmCo.Reddit.Monitor.Monitors;
 using SdmCo.Reddit.Monitor.Policies;
@@ -7,10 +6,10 @@ using SdmCo.Reddit.Monitor.Services;
 using SdmCo.Reddit.Monitor.Settings;
 using StackExchange.Redis;
 
-IHost host = Host.CreateDefaultBuilder(args)
+var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
-        IConfiguration configuration = hostContext.Configuration;
+        var configuration = hostContext.Configuration;
 
         // Configure RedditAuthSettings and SubredditSettings
         services.Configure<RedditAuthSettings>(configuration.GetSection(RedditAuthSettings.SectionName));

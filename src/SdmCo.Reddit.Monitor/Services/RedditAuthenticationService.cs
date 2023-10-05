@@ -10,6 +10,7 @@ namespace SdmCo.Reddit.Monitor.Services;
 
 public class RedditAuthenticationService : IRedditAuthenticationService
 {
+    // Auth endpoint and custom user agent
     private const string AccessTokenUrl = "https://www.reddit.com/api/v1/access_token";
     private const string RedditUserAgent = "Windows:SdmCoStats:v1.0.0 (by /u/Calamity_Rainbow)";
 
@@ -17,6 +18,7 @@ public class RedditAuthenticationService : IRedditAuthenticationService
     private readonly HttpClient _httpClient;
     private readonly ILogger<RedditAuthenticationService> _logger;
 
+    // Current token
     private RedditAuthToken? _currentToken;
 
     public RedditAuthenticationService(IOptions<RedditAuthSettings> authSettings, HttpClient httpClient,
@@ -27,6 +29,7 @@ public class RedditAuthenticationService : IRedditAuthenticationService
         _logger = logger;
     }
 
+    // Either return our current token if its valid, or try and get a new one
     public async Task<string> GetValidTokenAsync()
     {
         if (_currentToken == null || DateTime.UtcNow >= _currentToken.Expiry)
@@ -39,6 +42,7 @@ public class RedditAuthenticationService : IRedditAuthenticationService
         return _currentToken.AccessToken;
     }
 
+    // Get an access token.  Reddit does not appear to use refresh tokens anymore, so a full login is required each time
     private async Task<AccessTokenResponse> GetAccessTokenAsync()
     {
         _logger.LogInformation("Requesting new auth token.");

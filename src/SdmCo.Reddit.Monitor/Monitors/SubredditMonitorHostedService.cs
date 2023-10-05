@@ -33,7 +33,7 @@ public class SubredditMonitorHostedService : IHostedService
         foreach (var subreddit in subreddits)
         {
             // Spwan a new task to monitor each subreddit in our list
-            var task = Task.Run(async () =>
+            _ = Task.Run(async () =>
             {
                 // Create and configure our subreddit monitor
                 using var scope = _serviceProvider.CreateScope();
