@@ -10,6 +10,8 @@ public class RedisRepository : IRedditRepository
 
     public RedisRepository(IConnectionMultiplexer redis) => _redis = redis;
 
+    // Use a Redis set to store unique posts for each subreddit.
+    // A Redis set provides O(1) complexity for insert, remove, and lookup operations
     public async Task AddPostsAsync(string subreddit, List<RedditPost> posts)
     {
         var db = _redis.GetDatabase();
@@ -22,6 +24,7 @@ public class RedisRepository : IRedditRepository
         }
     }
 
+    // Deserialize the posts for a given subreddit and check to see which one has the most Ups (upvotes)
     public async Task<RedditPost> GetMostUpvotedPostAsync(string subreddit)
     {
         var db = _redis.GetDatabase();
@@ -34,6 +37,7 @@ public class RedisRepository : IRedditRepository
         return mostUpvotedPost!;
     }
 
+    // Deserialize the posts for a given subreddit, group by author, and see which author has the most posts
     public async Task<RedditUser> GetUserWithMostPostsAsync(string subreddit)
     {
         var db = _redis.GetDatabase();

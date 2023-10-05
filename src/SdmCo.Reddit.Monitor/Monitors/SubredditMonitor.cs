@@ -98,10 +98,10 @@ public class SubredditMonitor
                 continue;
 
             // Check if we have new posts in this response from the previous one
-            var hasNewPost = HasNewPosts(newPostsResponse);
-            if (hasNewPost)
+            var (hasNewPosts, newPostCount) = HasNewPosts(newPostsResponse);
+            if (hasNewPosts)
             {
-                _logger.LogInformation("New posts found in {SubredditName}", _subreddit);
+                _logger.LogInformation("{NewPostCount} new posts found in {SubredditName}", newPostCount, _subreddit);
                 
                 var redditPosts = newPostsResponse.Data.Children.Select(c => new RedditPost
                 {
@@ -132,16 +132,20 @@ public class SubredditMonitor
         }
     }
 
-    private bool HasNewPosts(NewPostsResponse response)
+    private (bool hasNewPosts, int newPostCount) HasNewPosts(NewPostsResponse response)
     {
         var hasNewPosts = false;
+        var newPostCount = 0;
 
         // Loop through new posts 
         // HashSet.Add() will return false if the Id already exists and true if it does not
         foreach (var post in response.Data.Children)
             if (_seenPostIds.Add(post.Data.Id))
-                return true;
+            {
+                hasNewPosts = true;
+                newPostCount++;
+            }
 
-        return hasNewPosts;
+        return (hasNewPosts, newPostCount);
     }
 }
