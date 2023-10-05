@@ -1,0 +1,9 @@
+version: '3.7'
+name: sdmco-reddit
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: sdmco-reddit-redis
+    ports:
+      - "6379:6379"
