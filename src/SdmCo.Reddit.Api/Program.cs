@@ -1,4 +1,6 @@
+using Microsoft.OpenApi.Models;
 using SdmCo.Reddit.Api.Extensions;
+using SdmCo.Reddit.Api.Middleware;
 using SdmCo.Reddit.Common.Persistence;
 using Serilog;
 using StackExchange.Redis;
@@ -10,7 +12,10 @@ builder.AddSerilog();
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SdmCo Reddit Stats API", Version = "v1" });
+});
 
 var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString")!;
 
@@ -29,6 +34,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

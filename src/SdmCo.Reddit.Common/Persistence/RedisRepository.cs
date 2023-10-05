@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using SdmCo.Reddit.Common.Entities;
 using StackExchange.Redis;
 
@@ -7,13 +8,19 @@ namespace SdmCo.Reddit.Common.Persistence;
 public class RedisRepository : IRedditRepository
 {
     private readonly IConnectionMultiplexer _redis;
+    private readonly ILogger<RedisRepository> _logger;
 
-    public RedisRepository(IConnectionMultiplexer redis) => _redis = redis;
+    public RedisRepository(IConnectionMultiplexer redis, ILogger<RedisRepository> logger)
+    {
+        _redis = redis;
+        _logger = logger;
+    }
 
     // Use a Redis set to store unique posts for each subreddit.
     // A Redis set provides O(1) complexity for insert, remove, and lookup operations
     public async Task AddPostsAsync(string subreddit, List<RedditPost> posts)
     {
+        _logger.LogInformation("Adding {NewPostCount} new posts in {SubredditName} to Redis.", posts.Count, subreddit);
         var db = _redis.GetDatabase();
 
         foreach (var post in posts)
@@ -32,7 +39,9 @@ public class RedisRepository : IRedditRepository
         var postSet = await db.SetMembersAsync(subreddit);
         var posts = postSet.Select(p => JsonSerializer.Deserialize<RedditPost>(p!)).ToList();
 
-        var mostUpvotedPost = posts.MaxBy(p => p!.Ups);
+        var mostUpvotedPost = posts.MaxBy(p => p!.Ups)!;
+
+        _logger.LogInformation("Calculated {MostUpvotedPostName} as most upvoted new post in {SubredditName}", mostUpvotedPost.Title, subreddit);
         
         return mostUpvotedPost!;
     }
@@ -49,6 +58,10 @@ public class RedisRepository : IRedditRepository
 
         var mostActiveUsername = mostActiveUserGroup?.Key ?? string.Empty;
         var mostActiveUserPostCount = mostActiveUserGroup?.Count() ?? 0;
+
+        _logger.LogInformation(
+            "Calculated {MostActiveUser} as the user with the most posts ({PostCount}) in {SubredditName}",
+            mostActiveUsername, mostActiveUserPostCount, subreddit);
 
         return new RedditUser
         {

@@ -16,4 +16,8 @@
     <ProjectReference Include="..\SdmCo.Reddit.Common\SdmCo.Reddit.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Middleware\" />
+  </ItemGroup>
+
 </Project>
