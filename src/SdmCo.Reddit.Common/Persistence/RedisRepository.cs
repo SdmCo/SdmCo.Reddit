@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SdmCo.Reddit.Common.Entities;
+using SdmCo.Reddit.Common.Exceptions;
 using StackExchange.Redis;
 
 namespace SdmCo.Reddit.Common.Persistence;
@@ -37,6 +38,10 @@ public class RedisRepository : IRedditRepository
         var db = _redis.GetDatabase();
 
         var postSet = await db.SetMembersAsync(subreddit);
+
+        if (postSet.Length == 0)
+            throw new SubredditNotFoundException(subreddit);
+
         var posts = postSet.Select(p => JsonSerializer.Deserialize<RedditPost>(p!)).ToList();
 
         var mostUpvotedPost = posts.MaxBy(p => p!.Ups)!;
@@ -52,6 +57,10 @@ public class RedisRepository : IRedditRepository
         var db = _redis.GetDatabase();
 
         var postSet = await db.SetMembersAsync(subreddit);
+
+        if (postSet.Length == 0)
+            throw new SubredditNotFoundException(subreddit);
+
         var posts = postSet.Select(p => JsonSerializer.Deserialize<RedditPost>(p!)).ToList();
 
         var mostActiveUserGroup = posts.GroupBy(p => p!.Author).MaxBy(g => g.Count());

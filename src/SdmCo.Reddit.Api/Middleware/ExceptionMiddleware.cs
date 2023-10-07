@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using SdmCo.Reddit.Api.Entities;
+using SdmCo.Reddit.Common.Exceptions;
 
 namespace SdmCo.Reddit.Api.Middleware;
 
@@ -33,14 +34,29 @@ public class ExceptionMiddleware
         context.Response.ContentType = "application/json";
 
         _logger.LogError(exception, exception.Message);
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        await context.Response.WriteAsync(new ErrorDetails
+        if (exception is SubredditNotFoundException)
         {
-            StatusCode = context.Response.StatusCode,
-            Message = _env.IsProduction()
-                ? "An error has occured"
-                : exception.Message // Don't want to leak exception details to users in Production
-        }.ToString());
+            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+
+            await context.Response.WriteAsync(new ErrorDetails
+            {
+                StatusCode = context.Response.StatusCode,
+                Message = $"Subreddit not found"
+
+            }.ToString());
+        }
+        else
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            await context.Response.WriteAsync(new ErrorDetails
+            {
+                StatusCode = context.Response.StatusCode,
+                Message = _env.IsProduction()
+                    ? "An error has occured"
+                    : exception.Message // Don't want to leak exception details to users in Production
+            }.ToString());
+        }
     }
 }

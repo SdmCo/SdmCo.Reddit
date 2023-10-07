@@ -18,6 +18,7 @@ public class RedditAuthenticationServiceTests
         var authSettings = new RedditAuthSettings();
         var mockOptions = new Mock<IOptions<RedditAuthSettings>>();
         mockOptions.Setup(ap => ap.Value).Returns(authSettings);
+        var userAgent = "Test User Agent";
 
         var logger = new Mock<ILogger<RedditAuthenticationService>>();
 
@@ -28,7 +29,7 @@ public class RedditAuthenticationServiceTests
             });
         var httpClient = new HttpClient(mockHttpMessageHandler);
 
-        var authService = new RedditAuthenticationService(mockOptions.Object, httpClient, logger.Object);
+        var authService = new RedditAuthenticationService(mockOptions.Object, httpClient, logger.Object, userAgent);
 
         // Act
         var token = await authService.GetValidTokenAsync();
@@ -44,6 +45,7 @@ public class RedditAuthenticationServiceTests
         var authSettings = new RedditAuthSettings();
         var mockOptions = new Mock<IOptions<RedditAuthSettings>>();
         mockOptions.Setup(ap => ap.Value).Returns(authSettings);
+        var userAgent = "Test User Agent";
 
         var logger = new Mock<ILogger<RedditAuthenticationService>>();
 
@@ -51,7 +53,7 @@ public class RedditAuthenticationServiceTests
             new HttpResponseMessage { StatusCode = HttpStatusCode.Unauthorized });
         var httpClient = new HttpClient(handler);
 
-        var authService = new RedditAuthenticationService(mockOptions.Object, httpClient, logger.Object);
+        var authService = new RedditAuthenticationService(mockOptions.Object, httpClient, logger.Object, userAgent);
 
         // Act & Assert
         await Assert.ThrowsAsync<HttpRequestException>(() => authService.GetValidTokenAsync());

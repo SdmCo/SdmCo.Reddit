@@ -20,13 +20,15 @@ public class SubredditMonitorTests
         var rateLimitService = new Mock<IRateLimitService>();
         var logger = new Mock<ILogger<SubredditMonitor>>();
         var httpClient = new HttpClient();
+        var userAgent = "Test User Agent";
 
         var subredditMonitor = new SubredditMonitor(
             redditAuthService.Object,
             rateLimitService.Object,
             httpClient,
             redditRepo.Object,
-            logger.Object
+            logger.Object,
+            userAgent
         );
 
         Assert.NotNull(subredditMonitor);
@@ -44,6 +46,7 @@ public class SubredditMonitorTests
         var redditRepo = new Mock<IRedditRepository>();
         var rateLimitService = new Mock<IRateLimitService>();
         var logger = new Mock<ILogger<SubredditMonitor>>();
+        var userAgent = "Test User Agent";
 
         var mockHttpMessageHandler = new MockHttpMessageHandler((request, cancellationToken) =>
             new HttpResponseMessage
@@ -62,7 +65,8 @@ public class SubredditMonitorTests
             rateLimitService.Object,
             httpClient,
             redditRepo.Object,
-            logger.Object
+            logger.Object,
+            userAgent
         );
 
         subredditMonitor.ConfigureSubreddit("test_subreddit");
@@ -85,6 +89,7 @@ public class SubredditMonitorTests
         var redditRepo = new Mock<IRedditRepository>();
         var rateLimitService = new Mock<IRateLimitService>();
         var logger = new Mock<ILogger<SubredditMonitor>>();
+        var userAgent = "Test User Agent";
 
         // Mock an HttpMessageHandler to return a failure response.
         var mockHttpMessageHandler = new MockHttpMessageHandler((request, cancellationToken) =>
@@ -100,7 +105,8 @@ public class SubredditMonitorTests
             rateLimitService.Object,
             httpClient,
             redditRepo.Object,
-            logger.Object
+            logger.Object,
+            userAgent
         );
 
         subredditMonitor.ConfigureSubreddit("test_subreddit");
@@ -124,6 +130,7 @@ public class SubredditMonitorTests
         var rateLimitService = new Mock<IRateLimitService>();
         var logger = new Mock<ILogger<SubredditMonitor>>();
         var httpClient = new Mock<HttpClient>();
+        var userAgent = "Test User Agent";
 
         redditAuthService.Setup(m => m.GetValidTokenAsync()).ReturnsAsync("dummy_token");
         rateLimitService.Setup(m => m.CanMakeRequest()).Returns(false);
@@ -134,7 +141,8 @@ public class SubredditMonitorTests
             rateLimitService.Object,
             httpClient.Object,
             redditRepo.Object,
-            logger.Object
+            logger.Object,
+            userAgent
         );
 
         subredditMonitor.ConfigureSubreddit("test_subreddit");
@@ -156,6 +164,7 @@ public class SubredditMonitorTests
         var redditRepo = new Mock<IRedditRepository>();
         var rateLimitService = new Mock<IRateLimitService>();
         var logger = new Mock<ILogger<SubredditMonitor>>();
+        var userAgent = "Test User Agent";
 
         redditAuthService.Setup(m => m.GetValidTokenAsync()).ReturnsAsync("dummy_token");
         rateLimitService.Setup(m => m.CanMakeRequest()).Returns(true);
@@ -183,7 +192,8 @@ public class SubredditMonitorTests
             rateLimitService.Object,
             httpClient,
             redditRepo.Object,
-            logger.Object
+            logger.Object,
+            userAgent
         );
 
         subredditMonitor.ConfigureSubreddit("test_subreddit");
