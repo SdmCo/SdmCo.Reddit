@@ -21,6 +21,13 @@ var host = Host.CreateDefaultBuilder(args)
                 settings.Subreddits = subreddits;
         });
 
+        // Dynamically build custom User Agent
+        var platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        var applicationName = hostContext.HostingEnvironment.ApplicationName;
+        var userName = configuration.GetSection(RedditAuthSettings.SectionName)["Username"];
+        var userAgent = $"{platform}:{applicationName}:v1.0.0 (by /u/{userName})";
+        services.AddSingleton(userAgent);
+
         // Configure Redis
         var redisConnectionString = configuration.GetValue<string>("Redis:ConnectionString")!;
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));

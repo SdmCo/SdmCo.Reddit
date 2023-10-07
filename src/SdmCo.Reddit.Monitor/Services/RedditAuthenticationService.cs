@@ -12,21 +12,22 @@ public class RedditAuthenticationService : IRedditAuthenticationService
 {
     // Auth endpoint and custom user agent
     private const string AccessTokenUrl = "https://www.reddit.com/api/v1/access_token";
-    private const string RedditUserAgent = "Windows:SdmCoStats:v1.0.0 (by /u/Calamity_Rainbow)";
 
     private readonly RedditAuthSettings _authSettings;
     private readonly HttpClient _httpClient;
     private readonly ILogger<RedditAuthenticationService> _logger;
+    private readonly string _userAgent;
 
     // Current token
     private RedditAuthToken? _currentToken;
 
     public RedditAuthenticationService(IOptions<RedditAuthSettings> authSettings, HttpClient httpClient,
-        ILogger<RedditAuthenticationService> logger)
+        ILogger<RedditAuthenticationService> logger, string userAgent)
     {
         _authSettings = authSettings.Value;
         _httpClient = httpClient;
         _logger = logger;
+        _userAgent = userAgent;
     }
 
     // Either return our current token if its valid, or try and get a new one
@@ -61,7 +62,7 @@ public class RedditAuthenticationService : IRedditAuthenticationService
 
         requestMessage.Content = content;
 
-        requestMessage.Headers.TryAddWithoutValidation("User-Agent", RedditUserAgent);
+        requestMessage.Headers.TryAddWithoutValidation("User-Agent", _userAgent);
 
         var response = await _httpClient.SendAsync(requestMessage);
         response.EnsureSuccessStatusCode();

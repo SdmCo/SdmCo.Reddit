@@ -9,15 +9,13 @@ namespace SdmCo.Reddit.Monitor.Monitors;
 
 public class SubredditMonitor
 {
-    // User agent for Reddit API requests
-    private const string RedditUserAgent = "Windows:SdmCoStats:v1.0.0 (by /u/Calamity_Rainbow)";
-
     // Injected services and configuration settings
     private readonly IRedditAuthenticationService _authService;
     private readonly HttpClient _httpClient;
     private readonly ILogger<SubredditMonitor> _logger;
     private readonly IRateLimitService _rateLimitService;
     private readonly IRedditRepository _repository;
+    private readonly string _userAgent;
 
     // Configuration settings
     private readonly int _maxRetryCount = 5;
@@ -30,7 +28,7 @@ public class SubredditMonitor
     private string _subreddit = string.Empty;
 
     public SubredditMonitor(IRedditAuthenticationService authService, IRateLimitService rateLimitService,
-        HttpClient httpClient, IRedditRepository repository, ILogger<SubredditMonitor> logger)
+        HttpClient httpClient, IRedditRepository repository, ILogger<SubredditMonitor> logger, string userAgent)
     {
         _authService = authService;
         _repository = repository;
@@ -38,6 +36,7 @@ public class SubredditMonitor
         _rateLimitService = rateLimitService;
 
         _httpClient = httpClient;
+        _userAgent = userAgent;
     }
 
     public void ConfigureSubreddit(string subreddit) => _subreddit = subreddit;
@@ -62,7 +61,7 @@ public class SubredditMonitor
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             // Add custom user agent
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", RedditUserAgent);
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", _userAgent);
 
             // Make request and ensure its successful
             var response =
